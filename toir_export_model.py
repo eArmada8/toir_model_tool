@@ -198,6 +198,8 @@ def read_model_file (f):
             vgmap = {}
             h_id_to_use = 0
             named_palette = []
+        mesh_data[i]['inv_mtx'] = inv_mtx
+        mesh_data[i]['palette'] = palette
         submesh = {'fmt': fmt, 'ibs': sub_indices, 'vb': vb, 'inv_mtx': inv_mtx, 'vgmap': vgmap,
             'palette': named_palette, 'hierarchy': h_id_to_use}
         meshes.append(submesh)
