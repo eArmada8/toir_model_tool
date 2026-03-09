@@ -146,7 +146,7 @@ def read_model_file (f):
         mesh['unk_str'] = read_string(f)
         mesh['v_count'], mesh['v_offset'], mesh['inv_mtx_count'], mesh['inv_mtx_offset'], mesh['palette_offset'] = struct.unpack("<5I", f.read(20))
         mesh['unk_matrix'] = struct.unpack("<16f", f.read(64))
-        mesh['unk_floats'] = struct.unpack("<9f", f.read(36))
+        mesh['bbox'] = struct.unpack("<9f", f.read(36))
         mesh['i_count'], mesh['i_offset'], mesh['unk0'], mesh['unk1'], mesh['unk2'] = struct.unpack("<5I", f.read(20))
         mesh_data.append(mesh)
     meshes = []

@@ -136,6 +136,7 @@ def write_model_data_block (model_filename):
             vertex_index = len(vb[0]['Buffer'])
             for k in range(len(vb)):
                 vb[k]['Buffer'].extend(vb_i[k]['Buffer'])
+            # Remap vertex numbers in sub-indices to use the combined vertex buffer
             all_ib.append([x + vertex_index for x in ib_i])
         mesh_header_block.extend(struct.pack("<2I", len(vb[0]['Buffer']), mesh_block_start + len(mesh_data_block)))
         for j in range(len(vb[0]['Buffer'])):
@@ -160,7 +161,17 @@ def write_model_data_block (model_filename):
             mesh_block_start + len(mesh_data_block) + len_index_header_block,
             mesh_block_start + len(mesh_data_block) + len_index_header_block + len(inv_mtx_block)))
         mesh_header_block.extend(struct.pack("<16f", *mesh_struct[i]['unk_matrix']))
-        mesh_header_block.extend(struct.pack("<9f", *mesh_struct[i]['unk_floats']))
+        # Bounding box
+        xyz_max, xyz_min = [], []
+        xyz_max.append(max([x[0] for x in vb[0]['Buffer']]))
+        xyz_max.append(max([x[1] for x in vb[0]['Buffer']]))
+        xyz_max.append(max([x[2] for x in vb[0]['Buffer']]))
+        xyz_min.append(min([x[0] for x in vb[0]['Buffer']]))
+        xyz_min.append(min([x[1] for x in vb[0]['Buffer']]))
+        xyz_min.append(min([x[2] for x in vb[0]['Buffer']]))
+        mesh_header_block.extend(struct.pack("<9f", xyz_min[0], xyz_min[1], xyz_min[2],
+            xyz_max[0], xyz_max[1], xyz_max[2], (xyz_max[0] + xyz_min[0]) / 2,
+            (xyz_max[1] + xyz_min[1]) / 2, (xyz_max[2] + xyz_min[2]) / 2))
         mesh_header_block.extend(struct.pack("<5I", len(all_ib), mesh_block_start + len(mesh_data_block),
             mesh_struct[i]['unk0'], mesh_struct[i]['unk1'], mesh_struct[i]['unk2']))
         # Build indices
