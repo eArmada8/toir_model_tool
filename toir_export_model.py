@@ -110,8 +110,10 @@ def read_model_file (f):
         textures.append(texture)
     #Materials
     materials = []
+    material_offsets = []
     f.seek(toc[0]['offset'])
     for i in range(toc[0]['num_entries']):
+        material_offsets.append(f.tell())
         name = read_string(f)
         vals = struct.unpack("<5i8h", f.read(36))
         tex = textures[vals[5]]['name']
@@ -169,9 +171,8 @@ def read_model_file (f):
         f.seek(mesh_data[i]['i_offset'])
         for j in range(mesh_data[i]['i_count']):
             sub_index_info = {}
-            sub_index_info['flags'], sub_index_info['num_indices'], sub_index_info['offset'] = struct.unpack("<3I", f.read(12))
-             # This is a guess, another guess is (sub_index_info['flags'] & 0xF)//4
-            sub_index_info['material'] = (sub_index_info['flags'] - 112) // 68
+            material_offset, sub_index_info['num_indices'], sub_index_info['offset'] = struct.unpack("<3I", f.read(12))
+            sub_index_info['material'] = materials[material_offsets.index(material_offset)]['name']
             sub_indices_info.append(sub_index_info)
         mesh_data[i]['sub_indices_info'] = sub_indices_info
         for j in range(mesh_data[i]['i_count']):
@@ -379,7 +380,7 @@ def write_gltf(model_filename, materials, mesh_data, meshes, hierarchies, overwr
             ib_stream.close()
             del(ib_stream)
             current_primitive["mode"] = 4 #TRIANGLES
-            current_primitive["material"] = mesh_data[i]['sub_indices_info'][j]['material']
+            current_primitive["material"] = material_list.index(mesh_data[i]['sub_indices_info'][j]['material'])
             primitives.append(current_primitive)
         # Mesh Node
         if mesh_data[i]['node'] in node_list:

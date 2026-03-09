@@ -78,7 +78,9 @@ def write_model_data_block (model_filename):
     model_data_block.extend(header)
     # Materials
     material_block = bytearray()
+    material_offsets = {}
     for i in range(len(material_struct)):
+        material_offsets[material_struct[i]['name']] = len(header) + len(material_block)
         material_block.extend(write_string(material_struct[i]['name'], str_len = 0x20))
         material_block.extend(struct.pack("<5i8h", *material_struct[i]['vals']))
     while len(material_block) % 0x10:
@@ -167,7 +169,8 @@ def write_model_data_block (model_filename):
         index_data_block_offset = (mesh_block_start + len(mesh_data_block)
             + len_index_header_block + len(inv_mtx_block) + len(palette_block)) # Yeah I know this is confusing
         for j in range(len(all_ib)):
-            index_header_block.extend(struct.pack("<3I", mesh_struct[i]['sub_indices_info'][j]['flags'],
+            index_header_block.extend(struct.pack("<3I",
+                material_offsets[mesh_struct[i]['sub_indices_info'][j]['material']],
                 len(all_ib[j]), index_data_block_offset + len(index_data_block)))
             index_data_block.extend(struct.pack("<{}H".format(len(all_ib[j])), *all_ib[j]))
             while len(index_data_block) % 0x10:
