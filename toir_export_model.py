@@ -170,8 +170,8 @@ def read_model_file (f):
         for j in range(mesh_data[i]['i_count']):
             sub_index_info = {}
             sub_index_info['flags'], sub_index_info['num_indices'], sub_index_info['offset'] = struct.unpack("<3I", f.read(12))
-             # This is a guess, another guess is (sub_index_info['flags'] & 0xF)//4, neither is clearly correct
-            sub_index_info['material'] = (sub_index_info['flags'] >> 6) - 1
+             # This is a guess, another guess is (sub_index_info['flags'] & 0xF)//4
+            sub_index_info['material'] = (sub_index_info['flags'] - 112) // 68
             sub_indices_info.append(sub_index_info)
         mesh_data[i]['sub_indices_info'] = sub_indices_info
         for j in range(mesh_data[i]['i_count']):
