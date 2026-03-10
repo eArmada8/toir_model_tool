@@ -107,9 +107,10 @@ def write_model_data_block (model_filename):
             try:
                 fmt_i = read_fmt(mesh_filename + '.fmt')
                 ib_i = [x for y in read_ib(mesh_filename + '.ib', fmt) for x in y]
-                vb_i = read_vb(mesh_filename + '.vb', fmt)
+                vb_i_ext = '.vb' if 'stride' in fmt_i else '.vb0'
+                vb_i = read_vb(mesh_filename + vb_i_ext, fmt)
                 vgmap_i = json.loads(open(mesh_filename + '.vgmap','rb').read())
-                assert fmt_i == fmt
+                assert fmt_i['elements'] == fmt['elements']
             except (FileNotFoundError, AssertionError) as err:
                 print("Submesh {0} not found or corrupt, generating an empty submesh...".format(mesh_filename))
                 # Generate an empty submesh
